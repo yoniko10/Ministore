@@ -11,8 +11,8 @@ const App: React.FC<AppProps> = ({Component, pageProps}) => {
         <Container borderRadius="sm" backgroundColor="white" boxShadow="md" marginY={4} maxWidth="container.xl" padding={4}>
           <VStack marginBottom={6}>
             <Image borderRadius={9999} src="//place-hold.it/128x128"></Image>
-            <Heading>Almacency</Heading>
-            <Text>Tu almacén de confianza</Text>
+            <Heading>Tu almacén</Heading>
+            <Text>El mejor de la ciudad</Text>
           </VStack>
           <Divider marginY={6}/>
           <Component {...pageProps} />

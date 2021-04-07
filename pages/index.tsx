@@ -2,7 +2,7 @@ import React from "react";
 import {GetStaticProps} from "next";
 import {Product} from "../product/types";
 import api from "../product/api";
-import { Button, Flex, Grid, Link, Stack, Text} from "@chakra-ui/react";
+import { Image, Button, Flex, Grid, Link, Stack, Text} from "@chakra-ui/react";
 
 interface Props {
     products: Product[];
@@ -34,6 +34,12 @@ const IndexRoute: React.FC<Props> = ({products}) => {
                 {products.map((product) => (
                     <Stack padding={4} key={product.id} backgroundColor="gray.100" borderRadius="md">
                         <Stack spacing={1}>
+                            <Image
+                            alt={product.title}
+                            borderTopRadius="md"
+                            maxHeight={128}
+                            objectFit="cover"
+                            src="//place-hold.it/128x128/"/>
                             <Text fontSize="md">{product.title}</Text>
                             <Text fontSize="sm">{product.description}</Text>
                             <Text color="green.500" fontSize="sm" fontWeight="500">{parseCurrency(product.price)}</Text>
@@ -51,7 +57,7 @@ const IndexRoute: React.FC<Props> = ({products}) => {
                         isExternal
                         as={Link}
                         colorScheme="whatsapp"
-                        href={`https://wa.me/543886050010?text=${encodeURIComponent(text)}`}>
+                        href={`https://wa.me/543886050010?text=Hola!%20Me%20gustaría%20realizar%20este%20pedido:%0A${encodeURIComponent(text)}`}>
                         Ver carrito ({cart.length} producto)
                     </Button>
                 </Flex>
