@@ -58,7 +58,7 @@ const IndexRoute: React.FC<Props> = ({products}) => {
                         as={Link}
                         colorScheme="whatsapp"
                         href={`https://wa.me/543886050010?text=Hola!%20Me%20gustaría%20realizar%20este%20pedido:%0A${encodeURIComponent(text)}`}>
-                        Ver carrito ({cart.length} producto)
+                        Hacer pedido ({cart.length} producto)
                     </Button>
                 </Flex>
                 )}
