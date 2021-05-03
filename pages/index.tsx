@@ -2,8 +2,10 @@ import React from "react";
 import { GetStaticProps } from "next";
 import { Product } from "../product/types";
 import api from "../product/api";
-import { Image, Button, Flex, Grid, Link, Stack, Text } from "@chakra-ui/react";
+import { Image, Button, Flex, Grid, Link, HStack, Stack, Text, useDisclosure} from "@chakra-ui/react";
 import { motion, AnimatePresence, AnimateSharedLayout } from "framer-motion";
+import { Drawer, DrawerBody, DrawerFooter, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton } from "@chakra-ui/react";
+import { List, ListItem, ListIcon, OrderedList, UnorderedList } from "@chakra-ui/react"
 
 interface Props {
     products: Product[];
@@ -16,9 +18,16 @@ function parseCurrency(value: number): string {
     });
 }
 
+interface CartItem extends Product{
+    quantity: number;
+}
+
 const IndexRoute: React.FC<Props> = ({ products }) => {
-    const [cart, setCart] = React.useState<Product[]>([]);
+    const [cart, setCart] = React.useState<CartItem[]>([]);
     const [selectedImage, setSelectedImage] = React.useState<string>(null);
+    const total = React.useMemo(() => parseCurrency(cart.reduce((total, product) => total + product.price, 0)),
+    [cart],
+    );
     const text = React.useMemo(
         () =>
             cart
@@ -30,12 +39,34 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
                     ``
                 )
                 .concat(
-                    `\nTotal: ${parseCurrency(
-                        cart.reduce((total, product) => total + product.price, 0)
-                    )}`
+                    `\nTotal: ${total}`
                 ),
-        [cart],
+        [cart, total],
     );
+
+    function handleAddToCart(product: Product) {
+        setCart((cart) => {
+            if (cart.some((item) => item.id == product.id)) {
+                return cart.map((item) =>
+                    item.id == product.id
+                    ?   {
+                            ...item,
+                            quantity: item.quantity + 1,
+                        }
+                    : item,
+                );
+            }
+            return cart.concat({...product, quantity: 1});
+        });
+    }
+
+    function handleRemoveFromCart(index){
+        setCart((cart) => cart.filter((_, _index) => _index != index));
+    }
+    
+    /* constantes definidas para que funcione el Drawer*/
+    const { isOpen, onOpen, onClose } = useDisclosure();
+    const btnRef = React.useRef();
 
     
     /* custom comment  React.useEffect(() => {
@@ -97,18 +128,53 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
                             position="sticky"
                         >
                             <Button
-                                width="fit-content"
+                                leftIcon={<Image src="https://icongr.am/fontawesome/shopping-cart.svg?size=24&color=ffffff"/>}
+                            ref={btnRef} colorScheme="teal" onClick={onOpen}
+                                >Carrito ({cart.length} producto)</Button>
+                            <Drawer
+        isOpen={isOpen}
+        size="md"
+        placement="right"
+        onClose={onClose}
+        finalFocusRef={btnRef}
+        >
+        <DrawerOverlay>
+            <DrawerContent>
+            <DrawerCloseButton />
+            <DrawerHeader>Carrito</DrawerHeader>
+
+            <DrawerBody>
+                <List spacing={4}>
+                    {cart.map((product, index) => <ListItem key={product.id}>
+                            <HStack justifyContent="space-between">
+                                <Text fontWeight="500">{product.title}</Text>
+                                <HStack spacing={3}>
+                                    <Text color="green.400">{parseCurrency(product.price)}</Text>
+                                    <Button colorScheme="red" onClick={() => handleRemoveFromCart(index) } size="xs">X</Button>
+                                </HStack>
+                            </HStack>
+                        </ListItem>)}
+                </List>
+            </DrawerBody>
+
+            <DrawerFooter>
+                <Button
+                                width="100%"
                                 isExternal
                                 as={Link}
                                 colorScheme="whatsapp"
                                 size="lg"
-                                leftIcon={<Image src="https://icongr.am/fontawesome/whatsapp.svg?size=32&color=ffffff"/>}
+                                leftIcon={<Image src="https://icongr.am/fontawesome/whatsapp.svg?size=24&color=ffffff"/>}
                                 href={`https://wa.me/543886050010?text=Hola!%20Me%20gustaría%20realizar%20este%20pedido:%0A${encodeURIComponent(
                                     text
                                 )}`}
                             >
-                                Hacer pedido ({cart.length} producto)
+                                Hacer pedido ({total})
                             </Button>
+            </DrawerFooter>
+            </DrawerContent>
+        </DrawerOverlay>
+        </Drawer>
                         </Flex>
                     )}
                 </AnimatePresence>
@@ -136,6 +202,8 @@ const IndexRoute: React.FC<Props> = ({ products }) => {
         </AnimateSharedLayout>
     );
 };
+
+
 
 export const getStaticProps: GetStaticProps = async () => {
     const products = await api.list();
