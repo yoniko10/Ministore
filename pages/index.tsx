@@ -18,6 +18,9 @@ function parseCurrency(value: number): string {
     });
 }
 
+interface CartItem extends Product{
+    quantity: number;
+}
 
 const IndexRoute: React.FC<Props> = ({ products }) => {
     const [cart, setCart] = React.useState<CartItem[]>([]);
